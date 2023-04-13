@@ -24,7 +24,7 @@ def get_real_friends(row):
         # pairs.append((int(f), user))
     return pairs
 
-def get_friends(row):
+def get_potential_friends(row):
     pairs = []
     _, friends = row.split('\t')
     if not friends:
@@ -46,7 +46,7 @@ path = 'q1/data/soc-LiveJournal1Adj.txt'
 # path = 'q1/data/small.txt'
 txt = sc.textFile(path)
 real_friends = txt.flatMap(get_real_friends)
-friends = txt.flatMap(get_friends).subtract(real_friends)
+friends = txt.flatMap(get_potential_friends).subtract(real_friends)
 counts = friends.map(lambda p: (p, 1)).reduceByKey(add)
 user2counts = counts.map(lambda triple: (triple[0][0], (triple[0][1], triple[1]))).groupByKey().mapValues(list)
 ranked_list = user2counts.map(lambda it: (it[0], rank_friends(it[1])))
