@@ -11,7 +11,7 @@ from PIL import Image
 # u and v are 1-dimensional np.array objects
 # TODO: Implement this
 def l1(u, v):
-    raise NotImplementedError
+    return np.linalg.norm(u-v, ord=1)
 
 # Loads the data into a np array, where each row corresponds to
 # an image patch -- this step is sort of slow.
@@ -94,14 +94,56 @@ def plot(A, row_nums, base_filename):
 
 # Finds the nearest neighbors to a given vector, using linear search.
 def linear_search(A, query_index, num_neighbors):
-    raise NotImplementedError #TODO
+    # raise NotImplementedError #TODO
+    candidate_row_nums = set(range(len(A))) - {query_index}
+    
+    distances = map(lambda r: (r, l1(A[r], A[query_index])), candidate_row_nums)
+    best_neighbors = sorted(distances, key=lambda t: t[1])[:num_neighbors]
+
+    return [t[0] for t in best_neighbors]
 
 # TODO: Write a function that computes the error measure
+def error_measure(A, ks, Ls):
+    ret = []
+    for k in ks:
+        for L in Ls:
+            (functions, hashed_A) = lsh_setup(A, k=k, L=L)
+            errors = []
+            for j in range(1, 11):
+                query_index = j * 100
+                lsh_neighbors = lsh_search(A, hashed_A, functions, query_index, 3)
+                linear_neighbors = linear_search(A, query_index, 3)
+                lsh_dist_sum = sum([l1(A[query_index], A[i]) for i in lsh_neighbors])
+                linear_dist_sum = sum([l1(A[query_index], A[i]) for i in linear_neighbors])
+                errors.append(lsh_dist_sum / linear_dist_sum)
+            ret.append(np.mean(errors))
+    return ret
 
 # TODO: Solve Problem 4
 def problem4():
-    raise NotImplementedError
+    import matplotlib.pyplot as plt
+    A = load_data("data/patches.csv")
+    # plot 1
+    Ls = list(range(10, 22, 2))
+    errors = error_measure(A, [24], Ls)
+    plt.plot(Ls, errors)
+    plt.xlabel("L")
+    plt.ylabel("Error")
+    plt.title("Error vs. L")
+    plt.xticks(Ls)
+    plt.show()
 
+    # plot 2
+    ks = list(range(16, 26, 2))
+    errors = error_measure(A, ks, [10])
+    plt.plot(ks, errors)
+    plt.xlabel("k")
+    plt.ylabel("Error")
+    plt.title("Error vs. k")
+    plt.xticks(ks)
+    plt.show()
+
+    
 #### TESTS #####
 
 class TestLSH(unittest.TestCase):
