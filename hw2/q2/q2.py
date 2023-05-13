@@ -82,6 +82,8 @@ if __name__ == "__main__":
 
             plt.plot(iterations, costs, label=init)
         
+            print(f"Cost change with {cost_name} distance and {init} initialization: {(costs[0]-costs[10])/costs[0]}")
+
         plt.legend()
         plt.title(f"Cost vs Iteration using {cost_name} distance")
         plt.xticks(iterations)
