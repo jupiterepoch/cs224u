@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 from matplotlib import pyplot as plt
 
 sigma = np.exp(-5)
@@ -53,17 +54,19 @@ for x, count in freqs.items():
     xs.append(count / t)
     ys.append((estimate - count) / count)
 
-plt.scatter(xs, ys)
+plt.scatter(xs, ys, s=1)
 plt.xlabel('exact word frequency')
 plt.ylabel('relative error')
 plt.title('Relative error vs. exact word frequency')
 plt.xscale('log')
 plt.yscale('log')
-
-
 xticks = [10**i for i in np.arange(np.floor(np.log10(min(xs))), np.ceil(np.log10(max(xs))) + 1)]
 yticks = [10**i for i in np.arange(np.floor(np.log10(min(ys))), np.ceil(np.log10(max(ys))) + 1)]
 plt.yticks(xticks)
 plt.yticks(yticks)
 plt.tight_layout()
 plt.savefig(f'q4{suffix}.png')
+plt.show()
+
+with open('save.pkl', 'wb') as f:
+    pickle.dump((xs, ys), f)
